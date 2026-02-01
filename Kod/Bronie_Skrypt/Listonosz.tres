@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="WeaponData_Podstawowe" load_steps=3 format=3 uid="uid://bhmqus0opafoh"]
+
+[ext_resource type="Script" path="res://Kod/Bronie_Skrypt/WeaponData_Podstawowe.gd" id="1_2am4r"]
+[ext_resource type="Texture2D" uid="uid://dn8wtpiyr4wa5" path="res://Sprity/ListoNosz.png" id="2_6nv35"]
+
+[resource]
+script = ExtResource("1_2am4r")
+nazwa = "ListoNosz"
+tekstura = ExtResource("2_6nv35")
+visual_offset = Vector2(0, 0)
+obrazenia = 2
+zasieg = 200.0
+szybkosc_ataku = 0.4
+odrzut_gracza = 300.0
+kat_startowy = -90.0
+kat_koncowy = 20.0

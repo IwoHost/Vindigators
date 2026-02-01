@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="WeaponData_Podstawowe" load_steps=3 format=3 uid="uid://bnmphscg4i81t"]
+
+[ext_resource type="Script" path="res://Kod/Bronie_Skrypt/WeaponData_Podstawowe.gd" id="1_gcd2p"]
+[ext_resource type="Texture2D" uid="uid://fjyospklx3ex" path="res://Sprity/vinmlot.png" id="2_20or5"]
+
+[resource]
+script = ExtResource("1_gcd2p")
+nazwa = "Młot"
+tekstura = ExtResource("2_20or5")
+obrazenia = 1
+zasieg = 120.0
+szybkosc_ataku = 0.2
+odrzut_gracza = 75.0
+kat_startowy = -110.0
+kat_koncowy = 40.0

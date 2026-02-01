@@ -1,0 +1,159 @@
+[gd_scene load_steps=7 format=3 uid="uid://dfmjgkjlmm7vb"]
+
+[ext_resource type="Texture2D" uid="uid://cg0ht7vpi71wb" path="res://Sprity/Meble_Sprite_2HF.png" id="1_hhl5i"]
+[ext_resource type="Texture2D" uid="uid://drube3tjirofg" path="res://Sprity/Zrzut ekranu 2026-01-29 194247.png" id="3_hso03"]
+
+[sub_resource type="GDScript" id="GDScript_j426r"]
+script/source = "extends StaticBody2D
+
+# --- Konfiguracja ---
+@export var hp: int = 3 
+
+# --- Referencje ---
+@onready var sprite = $Sprite2D
+@onready var particles = $GPUParticles2D
+@onready var platform_collision = $CollisionShape2D
+@onready var hurtbox_collision = $Hurtbox/CollisionShape2D
+
+# --- Stan ---
+var czy_zniszczone: bool = false
+
+func _ready():
+	add_to_group(\"destructibles\")
+	
+	if particles:
+		particles.emitting = false
+		particles.one_shot = true
+		
+		# Naprawa pozycji przy starcie
+		var current_pos = global_position
+		particles.top_level = true 
+		particles.global_position = current_pos
+		
+		if sprite:
+			particles.texture = sprite.texture
+			
+		var c_mat = CanvasItemMaterial.new()
+		c_mat.particles_animation = true
+		c_mat.particles_anim_h_frames = 4
+		c_mat.particles_anim_v_frames = 4
+		particles.material = c_mat
+		
+		if particles.process_material is ParticleProcessMaterial:
+			var p_mat = particles.process_material
+			p_mat.scale_min = 0.04 
+			p_mat.scale_max = 0.1
+			p_mat.angle_min = 0.0
+			p_mat.angle_max = 360.0
+			p_mat.anim_offset_min = 0.0
+			p_mat.anim_offset_max = 1.0
+			p_mat.gravity = Vector3(0, 980, 0)
+
+func take_damage(amount: int = 1):
+	if czy_zniszczone: return
+	hp -= amount
+	
+	# Feedback (Hitstop i Błysk HDR)
+	Engine.time_scale = 0.05
+	await get_tree().create_timer(0.05 * Engine.time_scale).timeout
+	Engine.time_scale = 1.0
+	
+	if sprite:
+		sprite.modulate = Color(10, 10, 10)
+		var tween = create_tween()
+		tween.tween_property(sprite, \"modulate\", Color.WHITE, 0.1)
+	
+	if hp > 0:
+		if particles:
+			particles.amount_ratio = 0.2
+			particles.restart()
+			particles.emitting = true
+	else:
+		destroy_mebel()
+
+func destroy_mebel():
+	if czy_zniszczone: return 
+	czy_zniszczone = true
+	
+	# --- LOGIKA Z DRZWI ---
+	# Zamiast znikać, zmieniamy klatkę na zniszczoną (zazwyczaj klatka 1)
+	if sprite:
+		sprite.frame = 1 # Tu ustaw numer klatki z gruzami (0 - cały, 1 - rozbity)
+		sprite.visible = true
+	
+	# Wyłączamy kolizje, żeby nie blokowały gracza i nie zbierały hitów
+	if platform_collision:
+		platform_collision.set_deferred(\"disabled\", true)
+	if hurtbox_collision:
+		hurtbox_collision.set_deferred(\"disabled\", true)
+	
+	# TRACKER
+	get_tree().call_group(\"furniture_manager\", \"register_destruction\")
+	
+	if particles:
+		particles.amount_ratio = 1.0
+		var global_pos = particles.global_position
+		
+		# Odczepiamy cząsteczki, by żyły własnym życiem
+		if particles.get_parent():
+			particles.get_parent().remove_child(particles)
+		get_tree().root.add_child(particles)
+		
+		particles.global_position = global_pos
+		particles.restart()
+		particles.emitting = true
+		
+		# Usuwamy same cząsteczki po czasie, ale mebel (gruzy) zostaje
+		get_tree().create_timer(15.0).timeout.connect(particles.queue_free)
+
+	# USUNĘLIŚMY queue_free() mebla! Teraz zostanie na mapie jako \"Frame 1\".
+"
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_d5cxh"]
+custom_solver_bias = 1.0
+size = Vector2(157.539, 12.4878)
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_bpv22"]
+particle_flag_disable_z = true
+spread = 180.0
+initial_velocity_min = 200.0
+initial_velocity_max = 400.0
+gravity = Vector3(0, 980, 0)
+scale_min = 5.0
+scale_max = 10.0
+color = Color(0.588235, 0.294118, 0, 1)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_gf4xa"]
+size = Vector2(80, 80)
+
+[node name="Mebel" type="StaticBody2D"]
+script = SubResource("GDScript_j426r")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+modulate = Color(0.588235, 0.294118, 0, 1)
+self_modulate = Color(0.588235, 0.294118, 0, 1)
+scale = Vector2(0.08, 0.08)
+texture = ExtResource("1_hhl5i")
+hframes = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(6.10352e-05, -36)
+scale = Vector2(0.609375, 0.640625)
+shape = SubResource("RectangleShape2D_d5cxh")
+one_way_collision = true
+one_way_collision_margin = 4.0
+
+[node name="GPUParticles2D" type="GPUParticles2D" parent="."]
+top_level = true
+emitting = false
+amount = 20
+process_material = SubResource("ParticleProcessMaterial_bpv22")
+texture = ExtResource("3_hso03")
+one_shot = true
+explosiveness = 1.0
+
+[node name="Hurtbox" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
+shape = SubResource("RectangleShape2D_gf4xa")
+debug_color = Color(0.984314, 0, 0.0784314, 0.419608)

@@ -1,0 +1,52 @@
+[gd_scene load_steps=7 format=3 uid="uid://bw85wf6bu6aii"]
+
+[ext_resource type="Script" path="res://Kod/Drzwi.gd" id="1_vo666"]
+[ext_resource type="Texture2D" uid="uid://114hwqycgqf8" path="res://Sprity/vindrzwi.png" id="2_mbuyi"]
+[ext_resource type="Texture2D" uid="uid://drube3tjirofg" path="res://Sprity/Zrzut ekranu 2026-01-29 194247.png" id="3_bwr2w"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1qf3s"]
+size = Vector2(26.0737, 244)
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_k88db"]
+particle_flag_disable_z = true
+spread = 180.0
+initial_velocity_min = 200.0
+initial_velocity_max = 400.0
+gravity = Vector3(0, 980, 0)
+scale_min = 5.0
+scale_max = 10.0
+color = Color(0.588235, 0.294118, 0, 1)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_y11dw"]
+size = Vector2(198.147, 232)
+
+[node name="Drzwi" type="StaticBody2D"]
+script = ExtResource("1_vo666")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(9.92636, 0)
+scale = Vector2(0.144893, 0.169049)
+texture = ExtResource("2_mbuyi")
+hframes = 3
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(4.8896, -1.99998)
+shape = SubResource("RectangleShape2D_1qf3s")
+debug_color = Color(0, 0.6, 0, 0.419608)
+
+[node name="GPUParticles2D" type="GPUParticles2D" parent="."]
+top_level = true
+position = Vector2(5, -2)
+emitting = false
+amount = 50
+process_material = SubResource("ParticleProcessMaterial_k88db")
+texture = ExtResource("3_bwr2w")
+one_shot = true
+explosiveness = 1.0
+
+[node name="InteractionZone" type="Area2D" parent="."]
+position = Vector2(4.92644, 1.52588e-05)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractionZone"]
+position = Vector2(0.0735474, -1.52588e-05)
+shape = SubResource("RectangleShape2D_y11dw")
