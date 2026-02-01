@@ -1,10 +1,8 @@
-[gd_scene load_steps=7 format=3 uid="uid://divt4ath4od46"]
+[gd_scene load_steps=5 format=3 uid="uid://divt4ath4od46"]
 
 [ext_resource type="PackedScene" uid="uid://ef0va6jke65y" path="res://Cegiełki/Podstaowy_Gracz.tscn" id="2_76ifd"]
 [ext_resource type="Script" path="res://Kod/Camera2D.gd" id="3_erd06"]
 [ext_resource type="PackedScene" uid="uid://1jkgaebt05u6" path="res://Cegiełki/Podstwowe_Floor.tscn" id="3_nyth0"]
-[ext_resource type="PackedScene" uid="uid://bw85wf6bu6aii" path="res://Cegiełki/Podsawowe_Drzwi.tscn" id="5_jdppl"]
-[ext_resource type="PackedScene" uid="uid://dfmjgkjlmm7vb" path="res://Cegiełki/Podstawowy_Mebel.tscn" id="8_hpmmw"]
 
 [sub_resource type="GDScript" id="GDScript_a7mhp"]
 script/source = "extends Node2D
@@ -37,7 +35,7 @@ func register_destruction():
 [node name="Main" type="Node2D"]
 
 [node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(-49, -172)
+position = Vector2(576, 328)
 script = ExtResource("3_erd06")
 
 [node name="FurnitureManager" type="Node2D" parent="."]
@@ -45,16 +43,7 @@ position = Vector2(261, -48)
 script = SubResource("GDScript_a7mhp")
 
 [node name="Player" parent="." instance=ExtResource("2_76ifd")]
-position = Vector2(-280, 8)
+position = Vector2(224, 480)
 
-[node name="Podłoga" parent="." instance=ExtResource("3_nyth0")]
-position = Vector2(8, 112)
-
-[node name="Mebel" parent="." instance=ExtResource("8_hpmmw")]
-position = Vector2(184, 32)
-
-[node name="Mebel2" parent="." instance=ExtResource("8_hpmmw")]
-position = Vector2(496, 32)
-
-[node name="Drzwi" parent="." instance=ExtResource("5_jdppl")]
-position = Vector2(-528, -48)
+[node name="Floor" parent="." instance=ExtResource("3_nyth0")]
+position = Vector2(720, 584)

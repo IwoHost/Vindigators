@@ -1,20 +1,26 @@
-[gd_scene load_steps=10 format=3 uid="uid://ef0va6jke65y"]
+[gd_scene load_steps=12 format=3 uid="uid://ef0va6jke65y"]
 
+[ext_resource type="PackedScene" uid="uid://ciyf7hdmw5fm6" path="res://weapon_hud.tscn" id="1_n71td"]
 [ext_resource type="Texture2D" uid="uid://bhqxyo6lkvsr1" path="res://Sprity/icon.svg" id="1_txnuc"]
 [ext_resource type="Texture2D" uid="uid://fjyospklx3ex" path="res://Sprity/vinmlot.png" id="2_x2l43"]
 [ext_resource type="Script" path="res://Kod/DashComponent.gd" id="3_bex0t"]
 [ext_resource type="Script" path="res://Kod/AttackComponent.gd" id="4_q0kp1"]
 [ext_resource type="Resource" uid="uid://bhmqus0opafoh" path="res://Kod/Bronie_Skrypt/Listonosz.tres" id="5_eh5no"]
 [ext_resource type="Resource" uid="uid://bnmphscg4i81t" path="res://Kod/Bronie_Skrypt/Mlot_Bojowy.tres" id="5_rpqg5"]
+[ext_resource type="Resource" uid="uid://bdq47fcetmipr" path="res://Kod/Bronie_Skrypt/Godot.tres" id="8_a738y"]
 
 [sub_resource type="GDScript" id="GDScript_6mlio"]
 script/source = "extends CharacterBody2D
 
-# --- POWRÓT DO MOCNEGO RUCHU ---
+# --- KONFIGURACJA RUCHU ---
 @export var speed = 400.0
 @export var jump_velocity = -400.0
 @export var bhop_boost = 60.0      
 @export var max_bhop_speed = 900.0 
+
+# --- SYSTEM BRONI ---
+@export var ekwipunek: Array[Resource] = [] # Pamiętaj: ustaw Size na 3 w Inspektorze!
+var aktualny_index = 0
 
 var current_speed = 400.0          
 var kierunek_patrzenia = 1 
@@ -22,9 +28,16 @@ var gravity = ProjectSettings.get_setting(\"physics/2d/default_gravity\")
 
 @onready var dash = $DashComponent
 @onready var attack = $AttackComponent
+@onready var hud = get_tree().root.find_child(\"WeaponHUD\", true, false)
+
+func _ready():
+	# Sprawdzamy na starcie, czy wszystko jest podpięte
+	print(\"GRACZ GOTOWY. Rozmiar ekwipunku: \", ekwipunek.size())
+	if hud and ekwipunek.size() > 0:
+		hud.aktualizuj_hud(ekwipunek, aktualny_index)
 
 func _physics_process(delta):
-	# 1. GRAWITACJA (Standardowa)
+	# 1. GRAWITACJA
 	if not is_on_floor() and not dash.is_dashing:
 		velocity.y += gravity * delta
 
@@ -37,36 +50,56 @@ func _physics_process(delta):
 		velocity.y = jump_velocity
 		current_speed = clamp(current_speed + bhop_boost, speed, max_bhop_speed)
 
-	# 4. RUCH (Prostszy, bardziej responsywny)
+	# 4. RUCH
 	var direction = Input.get_axis(\"ui_left\", \"ui_right\")
 	
 	if dash.is_dashing:
-		# Podczas dasha blokujemy Y, ale nie ruszamy X (pozwalamy mu lecieć z siłą impulsu)
 		velocity.y = 0 
 	else:
 		if direction:
-			# Powrót do bezpośredniego ustawiania prędkości - daje lepszy \"feeling\"
 			velocity.x = direction * current_speed
 			kierunek_patrzenia = sign(direction)
 			$Sprite2D.flip_h = (direction < 0)
 			$HammerZone.scale.x = kierunek_patrzenia
 		else:
-			# Płynne wyhamowanie, gdy nic nie trzymasz
 			var friction = 2000 if not attack.czy_atakuje else 500
 			velocity.x = move_toward(velocity.x, 0, friction * delta)
-			
 			if is_on_floor() and not attack.czy_atakuje:
 				current_speed = speed
 
-	# 5. OGRANICZENIA (Tylko delikatne, żeby nie psuć zabawy)
+	# 5. OGRANICZENIA PRĘDKOŚCI
 	if is_on_floor() and not Input.is_action_pressed(\"ui_accept\"):
 		current_speed = move_toward(current_speed, speed, delta * 500)
 
+	# --- OBSŁUGA ZMIANY BRONI ---
+	if Input.is_action_just_pressed(\"klawisz_1\"):
+		zmien_bron(0)
+	elif Input.is_action_just_pressed(\"klawisz_2\"):
+		zmien_bron(1)
+	elif Input.is_action_just_pressed(\"klawisz_3\"):
+		print(\"DEBUG: Naciśnięto klawisz 3!\") # Jeśli to się nie pojawi, popraw Input Map
+		zmien_bron(2)
+
 	move_and_slide()
 	
-	# 6. ATAK (Młot niszczący drzwi)
+	# 6. ATAK
 	if Input.is_action_just_pressed(\"ui_attack\") and not attack.czy_atakuje:
 		attack.wykonaj_atak(self)
+
+# --- FUNKCJA ZMIANY BRONI ---
+func zmien_bron(nowy_index: int):
+	# Logujemy każdą próbę zmiany
+	print(\"PRÓBA ZMIANY: na index \", nowy_index, \" | Posiadane bronie: \", ekwipunek.size())
+	
+	if nowy_index >= 0 and nowy_index < ekwipunek.size():
+		aktualny_index = nowy_index
+		var nazwa_broni = ekwipunek[aktualny_index].nazwa if ekwipunek[aktualny_index] else \"Brak nazwy\"
+		print(\"SUKCES: Zmieniono na: \", nazwa_broni)
+		
+		if hud:
+			hud.aktualizuj_hud(ekwipunek, aktualny_index)
+	else:
+		print(\"BŁĄD: Nie można zmienić na slot \", nowy_index, \" (ekwipunek jest za mały!)\")
 "
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_aq83t"]
@@ -78,6 +111,12 @@ size = Vector2(112, 112)
 [node name="Player" type="CharacterBody2D" groups=["gracz"]]
 z_index = 1
 script = SubResource("GDScript_6mlio")
+ekwipunek = Array[Resource]([ExtResource("5_rpqg5"), ExtResource("5_eh5no"), ExtResource("8_a738y")])
+
+[node name="WeaponHUD" parent="." instance=ExtResource("1_n71td")]
+visibility_layer = 1
+offset_left = 72.0
+offset_right = 72.0
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("1_txnuc")
@@ -101,7 +140,8 @@ texture = ExtResource("2_x2l43")
 [node name="DashComponent" type="Node" parent="."]
 script = ExtResource("3_bex0t")
 
-[node name="AttackComponent" type="Node" parent="."]
+[node name="AttackComponent" type="Node" parent="." node_paths=PackedStringArray("hud")]
 script = ExtResource("4_q0kp1")
-obecna_bron = ExtResource("5_eh5no")
-ekwipunek = Array[Resource("res://Kod/Bronie_Skrypt/WeaponData_Podstawowe.gd")]([ExtResource("5_rpqg5"), ExtResource("5_eh5no")])
+obecna_bron = ExtResource("5_rpqg5")
+ekwipunek = Array[Resource]([ExtResource("5_rpqg5"), ExtResource("5_eh5no"), ExtResource("8_a738y")])
+hud = NodePath("../WeaponHUD")

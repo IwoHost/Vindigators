@@ -1,0 +1,72 @@
+[gd_scene load_steps=3 format=3 uid="uid://ciyf7hdmw5fm6"]
+
+[ext_resource type="Script" path="res://Kod/WeaponHUD.gd" id="1_uyixm"]
+[ext_resource type="Texture2D" uid="uid://bhqxyo6lkvsr1" path="res://Sprity/icon.svg" id="2_10gv4"]
+
+[node name="WeaponHUD" type="Control"]
+visibility_layer = 512
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 64.0
+offset_top = 64.0
+offset_right = 64.0
+offset_bottom = 64.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_uyixm")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+layer = 128
+
+[node name="Control" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 8
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/Control"]
+custom_minimum_size = Vector2(200, 100)
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -196.0
+offset_top = -128.0
+offset_right = 196.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer/Control/HBoxContainer"]
+visibility_layer = 512
+custom_minimum_size = Vector2(120, 120)
+layout_mode = 2
+size_flags_horizontal = 0
+texture = ExtResource("2_10gv4")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TextureRect2" type="TextureRect" parent="CanvasLayer/Control/HBoxContainer"]
+visibility_layer = 512
+custom_minimum_size = Vector2(120, 120)
+layout_mode = 2
+size_flags_horizontal = 0
+texture = ExtResource("2_10gv4")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TextureRect3" type="TextureRect" parent="CanvasLayer/Control/HBoxContainer"]
+visibility_layer = 512
+custom_minimum_size = Vector2(120, 120)
+layout_mode = 2
+size_flags_horizontal = 0
+texture = ExtResource("2_10gv4")
+expand_mode = 1
+stretch_mode = 5

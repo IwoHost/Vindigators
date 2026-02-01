@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="WeaponData_Podstawowe" load_steps=3 format=3 uid="uid://bdq47fcetmipr"]
+
+[ext_resource type="Script" path="res://Kod/Bronie_Skrypt/WeaponData_Podstawowe.gd" id="1_v8gty"]
+[ext_resource type="Texture2D" uid="uid://bhqxyo6lkvsr1" path="res://Sprity/icon.svg" id="2_3n6jg"]
+
+[resource]
+script = ExtResource("1_v8gty")
+nazwa = "Godot"
+tekstura = ExtResource("2_3n6jg")
+visual_offset = Vector2(0, 0)
+obrazenia = 1
+zasieg = 120.0
+szybkosc_ataku = 27.965
+odrzut_gracza = 75.0
+kat_startowy = -110.0
+kat_koncowy = 40.0
